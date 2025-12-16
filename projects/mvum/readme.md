@@ -36,9 +36,9 @@ How to run
 
 Prebuilt maps (no build needed)
 - Grab the latest release: <https://github.com/OpenMANET/atakmaps/releases>
-- Download `MVUM_states.zip`, unzip it, and import the state KMZ files into ATAK. Importing one KMZ at a time tends to perform best.
+- Download `MVUM_states.zip`, unzip it, and import the state KMZ files into ATAK. Importing one state's KMZ at a time tends to perform best.
 
 Notes
 - Generation is always per-state; non-state/full-dataset output is not supported.
 - If a state has no trails or roads in its bbox, it’s skipped. Intermediate KMLs are deleted after KMZ creation to keep `outputs/` tidy.
-- When loading into ATAK, importing KMZ/KML files one at a time tends to perform better than bulk imports.
+- When loading into ATAK, importing each state's KMZ/KML files one at a time tends to perform better than bulk imports of many states.
