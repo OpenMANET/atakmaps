@@ -16,6 +16,10 @@ From repo root:
 
 Load the KMZ into ATAK to visualize the GMUs. Delete or ignore old outputs if you want a clean drop.***
 
+Prebuilt overlay (no build needed)
+- Latest release: <https://github.com/OpenMANET/atakmaps/releases>
+- Download `CO_GMUs.kmz` and import into ATAK.
+
 Quick start: export Colorado Game Management Units to ATAK KMZ. Download the GMU shapefile from https://geodata.colorado.gov/datasets/2c0794ece2ee4c8d9ac1f64cda8d0216_0/explore into `projects/colorado-hunting/inputs/`, then run `projects/colorado-hunting/main.py`.
 
 ## Screenshot

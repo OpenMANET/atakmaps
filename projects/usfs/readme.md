@@ -24,6 +24,10 @@ How to run
    - All states: set `RUN_ALL_STATES = True` in `main.py`.
 4) Copy the KMZ(s) from `projects/usfs/outputs/` to your ATAK device. Import one at a time for better performance.
 
+Prebuilt maps (no build needed)
+- Latest release: <https://github.com/OpenMANET/atakmaps/releases>
+- Download `USFS_trails.zip` for ready-to-import per-state non-motorized trail KMZs.
+
 What’s in the KMZ
 - Trails filtered to non‑motorized (motorized segments removed).
 - Labels from `TRAIL_NAME`/`TRAIL_NO`.
