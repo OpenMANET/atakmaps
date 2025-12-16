@@ -81,15 +81,32 @@ def run_export_with_gdal(
         f'SELECT *, NAME AS "NAME_LONG", "PEN(c:#{line_color},w:{line_width}px)" AS OGR_STYLE '
         f'FROM "{layer_name}"'
     )
+    vector_translate_to_kml(
+        shp_path=shp_path,
+        out_kml=out_kml,
+        sql_statement=sql,
+        export_layer_name=export_layer_name,
+        spat_filter=spat_filter,
+    )
+
+
+def vector_translate_to_kml(
+    shp_path: str,
+    out_kml: str,
+    sql_statement: str,
+    export_layer_name: str,
+    spat_filter: tuple[float, float, float, float] | None = None,
+) -> None:
+    """Generic KML export helper with caller-provided SQL."""
     Path(out_kml).unlink(missing_ok=True)
     _get_kml_driver()  # ensure driver exists early
-    print(f"Exporting shapefile to KML via GDAL (layer: {layer_name})...")
+    print(f"Exporting to KML via GDAL (layer: {export_layer_name})...")
     gdal.VectorTranslate(
         destNameOrDestDS=out_kml,
         srcDS=shp_path,
         format="KML",
         SQLDialect="SQLITE",
-        SQLStatement=sql,
+        SQLStatement=sql_statement,
         layerName=export_layer_name,
         spatFilter=spat_filter,
     )
@@ -763,6 +780,180 @@ def inject_description_table(kml_path: str) -> int:
         updated += 1
     tree.write(kml_path, encoding="utf-8", xml_declaration=True)
     return updated
+
+
+def inject_generic_description_table(
+    kml_path: str,
+    priority_fields: list[str] | tuple[str, ...],
+    heading: str = "",
+) -> int:
+    """
+    Build a simple HTML description table, ordering a given set of priority fields first.
+    Useful for non-motorized layers where the MVUM access legend does not apply.
+    """
+    priority = list(priority_fields)
+    ET.register_namespace("", KML_NS)
+    tree = ET.parse(kml_path)
+    root = tree.getroot()
+    updated = 0
+
+    for pm in root.findall(".//kml:Placemark", NS):
+        ext = pm.find("kml:ExtendedData", NS)
+        if ext is None:
+            continue
+
+        values: list[tuple[str, str]] = []
+        for sd in ext.findall(".//kml:SimpleData", NS):
+            name = sd.get("name")
+            val = (sd.text or "").strip()
+            if not name or not val:
+                continue
+            values.append((name, val))
+        if not values:
+            continue
+
+        rows: list[str] = []
+        seen = set()
+        for pname in priority:
+            for name, val in values:
+                if name == pname and name not in seen:
+                    rows.append(f"<tr><td><b>{name}</b></td><td>{val}</td></tr>")
+                    seen.add(name)
+                    break
+        for name, val in values:
+            if name in seen:
+                continue
+            rows.append(f"<tr><td><b>{name}</b></td><td>{val}</td></tr>")
+
+        prefix = f"<div><b>{heading}</b></div><br/>" if heading else ""
+        html = f"{prefix}<div><table>{''.join(rows)}</table></div>"
+
+        desc = pm.find("kml:description", NS)
+        if desc is None:
+            desc = ET.Element("description")
+            pm.insert(1, desc)
+        desc.text = _CDATA(html)
+        updated += 1
+
+    tree.write(kml_path, encoding="utf-8", xml_declaration=True)
+    return updated
+
+
+def set_kml_linestyle(kml_path: str, line_color: str, line_width: str) -> None:
+    """Force LineStyle color/width for all Placemarks in a KML."""
+    ET.register_namespace("", KML_NS)
+    tree = ET.parse(kml_path)
+    root = tree.getroot()
+
+    def ensure_style(pm: ET.Element) -> ET.Element:
+        style = pm.find("kml:Style", NS)
+        if style is None:
+            style = ET.Element("Style")
+            pm.insert(0, style)
+        return style
+
+    def ensure_linestyle(style: ET.Element) -> ET.Element:
+        ls = style.find("kml:LineStyle", NS)
+        if ls is None:
+            ls = ET.Element("LineStyle")
+            style.append(ls)
+        return ls
+
+    changed = False
+    for pm in root.findall(".//kml:Placemark", NS):
+        style = ensure_style(pm)
+        ls = ensure_linestyle(style)
+        c = ls.find("kml:color", NS)
+        if c is None:
+            c = ET.Element("color")
+            ls.append(c)
+        w = ls.find("kml:width", NS)
+        if w is None:
+            w = ET.Element("width")
+            ls.append(w)
+        c.text = line_color
+        w.text = line_width
+        changed = True
+
+    if changed:
+        tree.write(kml_path, encoding="utf-8", xml_declaration=True)
+
+
+def set_kml_polygon_styles(
+    kml_path: str,
+    field_name: str,
+    palette: list[str],
+    line_width: str = "2",
+    fill_alpha: str | None = None,
+) -> None:
+    """
+    Apply per-feature LineStyle/PolyStyle colors based on a numeric field (e.g., GMUID mod palette).
+    palette colors should be KML AABBGGRR strings (e.g., 'ff00ffff').
+    """
+    if not palette:
+        return
+    ET.register_namespace("", KML_NS)
+    tree = ET.parse(kml_path)
+    root = tree.getroot()
+    changed = False
+
+    for pm in root.findall(".//kml:Placemark", NS):
+        val = _find_simpledata_value(pm, field_name)
+        try:
+            idx = int(val) % len(palette) if val is not None else 0
+        except ValueError:
+            idx = 0
+        color = palette[idx]
+
+        style = pm.find("kml:Style", NS)
+        if style is None:
+            style = ET.Element("Style")
+            pm.insert(0, style)
+
+        ls = style.find("kml:LineStyle", NS)
+        if ls is None:
+            ls = ET.Element("LineStyle")
+            style.append(ls)
+        c = ls.find("kml:color", NS)
+        if c is None:
+            c = ET.Element("color")
+            ls.append(c)
+        w = ls.find("kml:width", NS)
+        if w is None:
+            w = ET.Element("width")
+            ls.append(w)
+        c.text = color
+        w.text = line_width
+
+        ps = style.find("kml:PolyStyle", NS)
+        if ps is None:
+            ps = ET.Element("PolyStyle")
+            style.append(ps)
+        pc = ps.find("kml:color", NS)
+        if pc is None:
+            pc = ET.Element("color")
+            ps.append(pc)
+        fill = ps.find("kml:fill", NS)
+        if fill is None:
+            fill = ET.Element("fill")
+            ps.append(fill)
+        outline = ps.find("kml:outline", NS)
+        if outline is None:
+            outline = ET.Element("outline")
+            ps.append(outline)
+        if fill_alpha:
+            # fill_alpha should be 2 hex chars (00-ff) representing desired alpha.
+            # Apply it to the existing BBGGRR from the palette.
+            base = color[2:]  # strip AA from AABBGGRR -> BBGGRR
+            pc.text = fill_alpha + base
+        else:
+            pc.text = color
+        fill.text = "1"
+        outline.text = "1"
+        changed = True
+
+    if changed:
+        tree.write(kml_path, encoding="utf-8", xml_declaration=True)
 
 
 def make_kmz(kml_path: str, kmz_path: str, extra_files: list[str] | None = None) -> None:

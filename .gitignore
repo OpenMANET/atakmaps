@@ -3,3 +3,4 @@ projects/mvum/inputs/
 *.zip
 __pycache__/
 .DS_Store
+inputs/

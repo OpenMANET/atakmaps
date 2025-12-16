@@ -60,7 +60,7 @@ def export_gmu(trails_shp: Path) -> tuple[Path, Path] | None:
     )
 
     ensure_placemark_names(out_kml, LABEL_FIELDS, overwrite=True)
-    inject_labelstyle(out_kml, label_color="ff00ffff", label_scale="10.0")
+    inject_labelstyle(out_kml, label_color="ff00ffff", label_scale="12.0")
     inject_generic_description_table(
         out_kml,
         priority_fields=[
