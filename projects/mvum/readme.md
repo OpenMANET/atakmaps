@@ -17,8 +17,8 @@ Why the KML looks this way
 - *Styling*: Trails use green/red (allowed/denied); roads use orange when any motorized vehicle is allowed and red when none are allowed.
 
 Screenshots
-- <img src="../../pics/MVUM1.jpg" alt="ATAK MVUM roads/trails view" width="420" />
-- <img src="../../pics/MVUM2.jpg" alt="ATAK MVUM access legend and metadata" width="420" />
+- <img src="../../pics/MVUM1.jpg" alt="ATAK MVUM roads/trails view" width="1024" />
+- <img src="../../pics/MVUM2.jpg" alt="ATAK MVUM access legend and metadata" width="1024" />
 
 How to run
 1) Install GDAL/OGR with Python bindings (ogrinfo/VectorTranslate available in PATH). On macOS with Homebrew: `brew install gdal`.
@@ -33,6 +33,10 @@ How to run
 5) Check `outputs/` for per-state KML/KMZ:
    - `MVUM_{STATE}_trails.kml`, `MVUM_{STATE}_roads.kml`, and combined `MVUM_{STATE}.kmz`.
    - `MVUM_states.zip` bundles all per-state KMZs.
+
+Prebuilt maps (no build needed)
+- Grab the latest release: <https://github.com/OpenMANET/atakmaps/releases>
+- Download `MVUM_states.zip`, unzip it, and import the state KMZ files into ATAK. Importing one KMZ at a time tends to perform best.
 
 Notes
 - Generation is always per-state; non-state/full-dataset output is not supported.
