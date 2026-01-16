@@ -25,8 +25,9 @@ from functions import (
 # ---------------------------
 # CONFIG
 # ---------------------------
-SHAPEFILES_DIR = Path("inputs")
-OUTPUT_DIR = Path("outputs")
+PROJECT_DIR = Path(__file__).resolve().parent
+SHAPEFILES_DIR = PROJECT_DIR / "inputs"
+OUTPUT_DIR = PROJECT_DIR / "outputs"
 
 INPUT_SHP_TRAILS = SHAPEFILES_DIR / "MVUM_Symbology_-_Motor_Vehicle_Use_Map_Trails.shp"
 INPUT_SHP_ROADS = SHAPEFILES_DIR / "MVUM_Symbology_-_Motor_Vehicle_Use_Map_Roads.shp"
