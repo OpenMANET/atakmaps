@@ -27,16 +27,48 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gdal-bin python3-gdal python3-pip zip
 
+      - name: Fetch source data (MVUM + TrailNFS)
+        run: |
+          set -euo pipefail
+          mkdir -p projects/mvum/inputs projects/usfs/inputs
+
+          # MVUM Trails (layer 0)
+          curl -L "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_MVUM_01/MapServer/0/query?where=1%3D1&outFields=*&f=geojson" -o /tmp/mvum_trails.geojson
+          ogr2ogr -overwrite -f "ESRI Shapefile" projects/mvum/inputs/MVUM_Symbology_-_Motor_Vehicle_Use_Map_Trails.shp /tmp/mvum_trails.geojson
+
+          # MVUM Roads (layer 1)
+          curl -L "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_MVUM_01/MapServer/1/query?where=1%3D1&outFields=*&f=geojson" -o /tmp/mvum_roads.geojson
+          ogr2ogr -overwrite -f "ESRI Shapefile" projects/mvum/inputs/MVUM_Symbology_-_Motor_Vehicle_Use_Map_Roads.shp /tmp/mvum_roads.geojson
+
+          # USFS TrailNFS Publish (non-motorized)
+          curl -L "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TrailNFS_Publish_01/MapServer/0/query?where=1%3D1&outFields=*&f=geojson" -o /tmp/usfs_trails.geojson
+          ogr2ogr -overwrite -f "ESRI Shapefile" "projects/usfs/inputs/National_Forest_System_Trails_(Feature_Layer).shp" /tmp/usfs_trails.geojson
+
+          # Compute input hash to skip rebuilds if unchanged.
+          hash=$(cat /tmp/mvum_trails.geojson /tmp/mvum_roads.geojson /tmp/usfs_trails.geojson | sha256sum | cut -d' ' -f1)
+          echo "INPUT_HASH=$hash" >> "$GITHUB_ENV"
+
+      - name: Restore cached site for unchanged inputs
+        id: cache-site
+        uses: actions/cache@v4
+        with:
+          path: site
+          key: kmz-site-${{ env.INPUT_HASH }}
+
       - name: Build MVUM KMZs
+        if: steps.cache-site.outputs.cache-hit != 'true'
         run: python3 projects/mvum/main.py
 
       - name: Build USFS trails KMZs
+        if: steps.cache-site.outputs.cache-hit != 'true'
         run: python3 projects/usfs/main.py
 
       - name: Build Colorado GMU KMZ
+        if: steps.cache-site.outputs.cache-hit != 'true'
         run: python3 projects/colorado-hunting/main.py
 
       - name: Collect site artifacts
+        if: steps.cache-site.outputs.cache-hit != 'true'
         run: |
           mkdir -p site/mvum site/usfs site/colorado-hunting
           cp -a projects/mvum/outputs/. site/mvum/ || true
