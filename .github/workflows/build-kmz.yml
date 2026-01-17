@@ -91,24 +91,30 @@ jobs:
           tmp=/tmp/cotrex.zip
           curl -sSfL --retry 5 --retry-delay 5 --retry-all-errors --max-time 1200 "$url" -o "$tmp"
           unzip -o "$tmp" -d projects/colorado-cotrex/inputs
-          # Normalize names if the dataset uses CPW_Trails*; keep original copies.
+          # Normalize names for trails/trailheads since the archive names vary.
           base=projects/colorado-cotrex/inputs
-          if [ -f "$base/CPW_Trails.shp" ]; then
-            cp "$base/CPW_Trails.shp" "$base/COTREX_Trails.shp" || true
-            for ext in dbf shx prj cpg xml; do
-              if [ -f "$base/CPW_Trails.$ext" ]; then
-                cp "$base/CPW_Trails.$ext" "$base/COTREX_Trails.$ext" || true
-              fi
+          normalize() {
+            dest="$1"
+            shift
+            for pat in "$@"; do
+              for shp in "$base"/$pat; do
+                if [ -f "$shp" ]; then
+                  stem="${shp%.*}"
+                  for ext in shp dbf shx prj cpg xml; do
+                    src="${stem}.$ext"
+                    if [ -f "$src" ]; then
+                      cp "$src" "$base/${dest}.$ext" || true
+                    fi
+                  done
+                  return 0
+                fi
+              done
             done
-          fi
-          if [ -f "$base/CPW_Trailheads.shp" ]; then
-            cp "$base/CPW_Trailheads.shp" "$base/COTREX_Trailheads.shp" || true
-            for ext in dbf shx prj cpg xml; do
-              if [ -f "$base/CPW_Trailheads.$ext" ]; then
-                cp "$base/CPW_Trailheads.$ext" "$base/COTREX_Trailheads.$ext" || true
-              fi
-            done
-          fi
+            return 1
+          }
+
+          normalize COTREX_Trails "COTREX_Trails.shp" "CPW_Trails.shp" "Trails_COTREX*.shp" "CPWDesignatedTrails*.shp" || true
+          normalize COTREX_Trailheads "COTREX_Trailheads.shp" "CPW_Trailheads.shp" "Trailheads_COTREX*.shp" || true
           ls -l "$base" || true
           if ! ls "$base"/COTREX_Trails.shp "$base"/COTREX_Trailheads.shp >/dev/null 2>&1; then
             echo "COTREX shapefiles not found after download/unzip" >&2

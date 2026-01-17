@@ -31,14 +31,27 @@ gdal.UseExceptions()
 
 def _pick_shapefile(candidates: list[str]) -> Path | None:
     base = Path(__file__).resolve().parent / "inputs"
-    for name in candidates:
-        path = base / name
-        if path.exists():
-            return path
+    for pattern in candidates:
+        for path in sorted(base.glob(pattern)):
+            if path.exists():
+                return path
     return None
 
-INPUT_SHP = _pick_shapefile(["COTREX_Trails.shp", "CPW_Trails.shp"])
-INPUT_SHP_TRAILHEADS = _pick_shapefile(["COTREX_Trailheads.shp", "CPW_Trailheads.shp"])
+INPUT_SHP = _pick_shapefile(
+    [
+        "COTREX_Trails.shp",
+        "CPW_Trails.shp",
+        "Trails_COTREX*.shp",
+        "CPWDesignatedTrails*.shp",
+    ]
+)
+INPUT_SHP_TRAILHEADS = _pick_shapefile(
+    [
+        "COTREX_Trailheads.shp",
+        "CPW_Trailheads.shp",
+        "Trailheads_COTREX*.shp",
+    ]
+)
 OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
 OUTPUT_KML = OUTPUT_DIR / "COTREX_Trails.kml"
 OUTPUT_KMZ = OUTPUT_DIR / "COTREX_Trails.kmz"
