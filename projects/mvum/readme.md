@@ -36,6 +36,7 @@ How to run
 
 Prebuilt maps (no build needed)
 - Grab the latest release: <https://github.com/OpenMANET/atakmaps/releases>
+- Direct GitHub Pages link for Minnesota: https://openmanet.github.io/atakmaps/mvum/MVUM_MN.kmz
 - Download `MVUM_states.zip`, unzip it, and import the state KMZ files into ATAK. Importing one state's KMZ at a time tends to perform best.
 
 Notes
