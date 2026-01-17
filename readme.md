@@ -34,6 +34,7 @@ This repo holds various ATAK-related map projects and may drift over time as dif
 </kml>
 ```
 - Zip that KML into a KMZ and import it in ATAK (Data > Import or Network Links > Add). ATAK will pull fresh KMZs from GitHub Pages on each refresh.
+- ATAK UI steps to add a network KMZ: ATAK → Tools (hammer/wrench) → Data Packages → Network Links → `+` → pick the KMZ file; set refresh to 1 hour; save. The link will auto-refresh from the hosted KMZ.
 
 
 ## Links
