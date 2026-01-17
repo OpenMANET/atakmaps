@@ -15,7 +15,7 @@ This repo holds various ATAK-related map projects and may drift over time as dif
 
 ## Network link KMZ for ATAK
 - The scheduled workflow `.github/workflows/build-kmz.yml` builds KMZs weekly and publishes them to GitHub Pages (manual trigger: `gh workflow run build-kmz.yml`).
-- Pages URL pattern: `https://<your-gh-username>.github.io/atakmaps/<project>/<file>` (e.g., `.../mvum/MVUM_CO.kmz` or `.../mvum/MVUM_states.zip`).
+- Pages URL pattern: `https://openmanet.github.io/atakmaps/mvum/MVUM_KY.kmz` (e.g., `.../mvum/MVUM_CO.kmz` or `.../mvum/MVUM_states.zip`).
 - Create a small KML that references the hosted KMZ, then zip it to KMZ and import into ATAK. Example:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -25,7 +25,7 @@ This repo holds various ATAK-related map projects and may drift over time as dif
     <NetworkLink>
       <name>MVUM CO</name>
       <Link>
-        <href>https://<your-gh-username>.github.io/atakmaps/mvum/MVUM_CO.kmz</href>
+        <href>https://openmanet.github.io/atakmaps/mvum/MVUM_CO.kmz</href>
         <refreshMode>onInterval</refreshMode>
         <refreshInterval>3600</refreshInterval>
       </Link>
