@@ -25,8 +25,8 @@ How to run
 4) Copy the KMZ(s) from `projects/usfs/outputs/` to your ATAK device. Import one at a time for better performance.
 
 Prebuilt maps (no build needed)
-- Latest release: <https://github.com/OpenMANET/atakmaps/releases>
-- Download `USFS_trails.zip` for ready-to-import per-state non-motorized trail KMZs.
+- Use the published map source: <https://openmanet.github.io/atakmaps/>
+- Download a ready-to-import state file using `https://openmanet.github.io/atakmaps/usfs/USFS_trails_{STATE}.kmz`, replacing `{STATE}` with its two-letter abbreviation.
 
 What’s in the KMZ
 - Trails filtered to non‑motorized (motorized segments removed).

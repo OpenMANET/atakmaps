@@ -7,6 +7,8 @@ This project builds two complementary ATAK KMZ overlays per state:
 
 Tap a feature in ATAK to see an HTML summary similar to the USFS overlays. The EPA layer uses green for assessed features not flagged impaired, orange for threatened features, red for impaired/listed features, and gray where assessment status is unavailable.
 
+Current prebuilt files are published at <https://openmanet.github.io/atakmaps/>. Use that catalog as the authoritative download source.
+
 ## Data sources
 
 - USGS 3DHP Feature Service: <https://3dhp.nationalmap.gov/arcgis/rest/services/usgs_3dhp_all/FeatureServer>
@@ -36,7 +38,7 @@ Use `--skip-usgs` or `--skip-epa` to build only one source. Outputs are written 
 
 ## Continuous delivery
 
-The GitHub Actions workflow builds both overlays for all 50 states and Washington, D.C. A four-job concurrency limit avoids flooding the USGS and EPA services. Each state is uploaded as an intermediate artifact, merged into `site/water/`, listed on the generated download page, and published through GitHub Pages. Alaska is queried with two envelopes split at the antimeridian rather than one near-global bounding box.
+The GitHub Actions workflow builds both overlays for all 50 states and Washington, D.C. A four-job concurrency limit avoids flooding the USGS and EPA services. Each state is uploaded as an intermediate artifact, merged into `site/water/`, listed on the generated download page, and published through GitHub Pages. Alaska is queried with three bounded envelopes, including one east of the antimeridian, rather than one near-global bounding box.
 
 Published filenames follow these patterns:
 

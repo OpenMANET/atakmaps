@@ -35,8 +35,8 @@ How to run
    - `MVUM_states.zip` bundles all per-state KMZs.
 
 Prebuilt maps (no build needed)
-- Grab the latest release: <https://github.com/OpenMANET/atakmaps/releases>
-- Download `MVUM_states.zip`, unzip it, and import the state KMZ files into ATAK. Importing one state's KMZ at a time tends to perform best.
+- Use the published map source: <https://openmanet.github.io/atakmaps/>
+- Download <https://openmanet.github.io/atakmaps/mvum/MVUM_states.zip>, unzip it, and import the state KMZ files into ATAK. Importing one state's KMZ at a time tends to perform best.
 
 Notes
 - Generation is always per-state; non-state/full-dataset output is not supported.

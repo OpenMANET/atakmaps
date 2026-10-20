@@ -17,9 +17,9 @@ From this folder:
 
 If you have a newer JSON export, replace `co_cotrip_cameras.json` then rerun the scripts. Delete or ignore old files in `outputs/` if you want a clean drop.***
 
-Prebuilt data package (no build needed)
-- Latest release: <https://github.com/OpenMANET/atakmaps/releases>
-- Download `co_cotrip_cameras_mp.zip` and import into ATAK as a data package.
+Published data package
+- Use <https://openmanet.github.io/atakmaps/> as the authoritative download source. If `co_cotrip_cameras_mp.zip` is listed there, download it and import it into ATAK as a data package.
+- If the package is not listed, build it locally with `python3 convert_cot.py` as described above.
 
 Note: the output is a CoT mission data package (ZIP with `.cot` files), not a KML/KMZ. Import the ZIP into ATAK as a data package to see the camera markers and launch HLS streams.
 
