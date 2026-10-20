@@ -3,6 +3,10 @@
 
 This repo holds various ATAK-related map projects and may drift over time as different data/maps are used. Each project lives in its own folder under `projects/`.
 
+## Map source
+
+**Use <https://openmanet.github.io/atakmaps/> as the authoritative source for current, ready-to-import map files.** The catalog is rebuilt by CI/CD and lists every published KMZ or data package. GitHub Releases are not used for distribution.
+
 ## Projects
 - USFS MVUM — exports Motor Vehicle Use Map data to ATAK-ready KML/KMZ with access legends; see `projects/mvum/readme.md`.
 - USFS Trails (non-motorized) — per-state KMZs for hiking/bike/snow trails from TrailNFS_Publish, with motorized segments removed; see `projects/usfs/readme.md`.
@@ -11,11 +15,11 @@ This repo holds various ATAK-related map projects and may drift over time as dif
 - USGS Surface Water + EPA Water Quality — separate ATAK KMZ overlays for 3DHP streams, lakes, waterbodies, and springs plus ATTAINS assessment status; see `projects/water/README.md`.
 
 ## Prebuilt maps (no build needed)
-- Latest release: <https://github.com/OpenMANET/atakmaps/releases>
-- Each project README lists the prebuilt artifact to download (e.g., `MVUM_states.zip`, `USFS_trails.zip`, `CO_GMUs.kmz`, `co_cotrip_cameras_mp.zip`) and how to import it into ATAK.
+- Browse or download current files from <https://openmanet.github.io/atakmaps/>.
+- Each project README describes its published filenames and how to import them into ATAK.
 
 ## Network link KMZ for ATAK
-- The scheduled workflow `.github/workflows/build-kmz.yml` builds KMZs weekly and publishes them to GitHub Pages (manual trigger: `gh workflow run build-kmz.yml`).
+- The scheduled workflow `.github/workflows/build-kmz.yml` builds KMZs weekly and publishes them to the authoritative source at <https://openmanet.github.io/atakmaps/> (manual trigger: `gh workflow run build-kmz.yml`).
 - Pages URL pattern: `https://openmanet.github.io/atakmaps/mvum/MVUM_KY.kmz` (e.g., `.../mvum/MVUM_CO.kmz` or `.../mvum/MVUM_states.zip`).
 - State water overlays use `https://openmanet.github.io/atakmaps/water/USGS_3DHP_CO.kmz` and `https://openmanet.github.io/atakmaps/water/EPA_ATTAINS_CO.kmz`; replace `CO` with any state or D.C. abbreviation.
 - Create a small KML that references the hosted KMZ, then zip it to KMZ and import into ATAK. Example:
