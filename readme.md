@@ -8,6 +8,7 @@ This repo holds various ATAK-related map projects and may drift over time as dif
 - USFS Trails (non-motorized) — per-state KMZs for hiking/bike/snow trails from TrailNFS_Publish, with motorized segments removed; see `projects/usfs/readme.md`.
 - Colorado CoTrip traffic cameras — CoTrip camera feeds packaged for ATAK data packages; see `projects/colorado-traffic-cameras/README.md`.
 - Colorado Hunting GMUs — Colorado Game Management Units exported to ATAK KMZ; see `projects/colorado-hunting/README.md`.
+- USGS Surface Water + EPA Water Quality — separate ATAK KMZ overlays for 3DHP streams, lakes, waterbodies, and springs plus ATTAINS assessment status; see `projects/water/README.md`.
 
 ## Prebuilt maps (no build needed)
 - Latest release: <https://github.com/OpenMANET/atakmaps/releases>
@@ -16,6 +17,7 @@ This repo holds various ATAK-related map projects and may drift over time as dif
 ## Network link KMZ for ATAK
 - The scheduled workflow `.github/workflows/build-kmz.yml` builds KMZs weekly and publishes them to GitHub Pages (manual trigger: `gh workflow run build-kmz.yml`).
 - Pages URL pattern: `https://openmanet.github.io/atakmaps/mvum/MVUM_KY.kmz` (e.g., `.../mvum/MVUM_CO.kmz` or `.../mvum/MVUM_states.zip`).
+- State water overlays use `https://openmanet.github.io/atakmaps/water/USGS_3DHP_CO.kmz` and `https://openmanet.github.io/atakmaps/water/EPA_ATTAINS_CO.kmz`; replace `CO` with any state or D.C. abbreviation.
 - Create a small KML that references the hosted KMZ, then zip it to KMZ and import into ATAK. Example:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>

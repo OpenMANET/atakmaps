@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - .github/workflows/build-kmz.yml
+      - projects/water/**
+      - state_bboxes.py
   schedule:
     - cron: "0 9 * * 1" # Mondays at 09:00 UTC
   workflow_dispatch: {}
@@ -22,7 +24,82 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-water:
+    name: Build water overlays (${{ matrix.state }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        state:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DE
+          - DC
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build state water overlays
+        run: python3 projects/water/main.py --state "${{ matrix.state }}"
+
+      - name: Upload state water overlays
+        uses: actions/upload-artifact@v4
+        with:
+          name: water-${{ matrix.state }}
+          path: projects/water/outputs/*.kmz
+          if-no-files-found: error
+          retention-days: 1
+
   build:
+    needs: build-water
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -147,12 +224,22 @@ jobs:
       - name: Collect site artifacts
         if: steps.cache-site.outputs.cache-hit != 'true'
         run: |
-          mkdir -p site/mvum site/usfs site/colorado-hunting site/cotrex site/cotrip
+          mkdir -p site/mvum site/usfs site/colorado-hunting site/cotrex site/cotrip site/water
           cp -a projects/mvum/outputs/. site/mvum/ || true
           cp -a projects/usfs/outputs/. site/usfs/ || true
           cp -a projects/colorado-hunting/outputs/. site/colorado-hunting/ || true
           cp -a projects/colorado-cotrex/outputs/. site/cotrex/ || true
           cp -a projects/colorado-traffic-cameras/outputs/. site/cotrip/ || true
+
+      - name: Download all state water overlays
+        uses: actions/download-artifact@v4
+        with:
+          pattern: water-*
+          path: site/water
+          merge-multiple: true
+
+      - name: Generate Pages index
+        run: |
           find site -type f | sort > site/manifest.txt
           python3 - <<'PY'
           import time
@@ -192,6 +279,7 @@ jobs:
           body.append(section("Colorado GMUs / Land Ownership", lambda f: f.startswith("colorado-hunting/")))
           body.append(section("Colorado COTREX", lambda f: f.startswith("cotrex/")))
           body.append(section("Colorado CoTrip Cameras (CoT packages)", lambda f: f.startswith("cotrip/")))
+          body.append(section("USGS Surface Water / EPA Water Quality", lambda f: f.startswith("water/")))
 
           html = "\n".join([
               "<!doctype html>",
