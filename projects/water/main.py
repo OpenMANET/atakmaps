@@ -143,7 +143,9 @@ def fetch_arcgis_features(
             # service returns HTTP 500 for the combined response. Resume from
             # the same offset with a smaller page instead of restarting the
             # entire state job.
-            if exc.code < 500 or page_size <= minimum_page_size:
+            status = exc.code
+            exc.close()
+            if status < 500 or page_size <= minimum_page_size:
                 raise
             page_size = max(minimum_page_size, page_size // 2)
             print(
