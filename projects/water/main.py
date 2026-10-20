@@ -393,14 +393,25 @@ def state_query_bboxes(state: str) -> list[tuple[float, float, float, float]]:
     state = state.upper()
     if state == "AK":
         # A single -179..+179 envelope would cover almost the entire northern
-        # hemisphere. Keep the mainland/western Aleutians and the islands east
-        # of the antimeridian in two bounded requests instead.
+        # hemisphere. Separate southeast Alaska from the mainland as well, so
+        # the rectangular query does not include most of western Canada.
         return [
-            (-180.0, 51.0, -129.0, 72.0),
+            (-180.0, 51.0, -141.0, 72.0),
+            (-141.0, 54.0, -129.0, 61.0),
             (172.0, 51.0, 180.0, 54.8),
         ]
     bbox = STATE_BBOXES.get(state)
     return [bbox] if bbox else []
+
+
+def waterbody_queries(state: str) -> tuple[str, ...]:
+    """Return useful waterbody filters at a practical statewide scale."""
+    if state.upper() == "AK":
+        # Alaska has hundreds of thousands of tiny mapped polygons. Preserve
+        # all named waterbodies, but use a larger threshold for unnamed ones so
+        # ArcGIS can complete the request and ATAK can load the resulting KMZ.
+        return ("gnisidlabel IS NOT NULL", "areasqkm >= 0.25")
+    return ("gnisidlabel IS NOT NULL", "areasqkm >= 0.02")
 
 
 def build_usgs(
@@ -430,7 +441,7 @@ def build_usgs(
         (
             feature
             for bbox in bboxes
-            for where in ("gnisidlabel IS NOT NULL", "areasqkm >= 0.02")
+            for where in waterbody_queries(state)
             for feature in fetch_arcgis_features(
                 USGS_BASE,
                 60,

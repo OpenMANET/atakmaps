@@ -13,11 +13,18 @@ SPEC.loader.exec_module(water)
 class WaterKmlTests(unittest.TestCase):
     def test_alaska_is_split_at_the_antimeridian(self):
         bboxes = water.state_query_bboxes("AK")
-        self.assertEqual(len(bboxes), 2)
-        self.assertTrue(all(east - west < 60 for west, _, east, _ in bboxes))
+        self.assertEqual(len(bboxes), 3)
+        self.assertTrue(all(east - west < 40 for west, _, east, _ in bboxes))
 
     def test_other_states_use_shared_bbox(self):
         self.assertEqual(water.state_query_bboxes("CO"), [water.STATE_BBOXES["CO"]])
+
+    def test_alaska_uses_a_practical_unnamed_waterbody_threshold(self):
+        self.assertEqual(
+            water.waterbody_queries("AK"),
+            ("gnisidlabel IS NOT NULL", "areasqkm >= 0.25"),
+        )
+        self.assertIn("areasqkm >= 0.02", water.waterbody_queries("CO"))
 
     def test_quality_style_priority(self):
         self.assertEqual(water.quality_style({"isassessed": "Y"}), "quality-good")

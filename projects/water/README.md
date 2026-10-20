@@ -14,7 +14,7 @@ Tap a feature in ATAK to see an HTML summary similar to the USFS overlays. The E
 - EPA canonical geospatial service: <https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer>
 - EPA background and limitations: <https://www.epa.gov/waterdata/get-data-access-public-attains-data>
 
-3DHP is the maintained successor to the retired National Hydrography Dataset. Its service combines newer elevation-derived hydrography where available with NHD data elsewhere. To keep the KMZ usable in ATAK, the flowline overlay includes named segments at least 0.5 km long; waterbodies include named features plus unnamed features at least 0.02 square km (about 5 acres). State bounding boxes are rectangular, so a few features just across a state line may be included.
+3DHP is the maintained successor to the retired National Hydrography Dataset. Its service combines newer elevation-derived hydrography where available with NHD data elsewhere. To keep the KMZ usable in ATAK, the flowline overlay includes named segments at least 0.5 km long; waterbodies include named features plus unnamed features at least 0.02 square km (about 5 acres). Alaska retains all named waterbodies but uses 0.25 square km for unnamed polygons because the national service contains hundreds of thousands of tiny Alaska polygons. State bounding boxes are rectangular, so a few features just across a state line may be included.
 
 ATTAINS contains the latest assessment information submitted by each state, territory, or authorized tribe, but reporting cycles and coverage vary. An unassessed, unlisted, or green feature is **not** a real-time safety or potability determination. The EPA overlay should be treated as context, not proof that water is safe.
 
