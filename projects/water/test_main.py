@@ -33,7 +33,9 @@ class WaterKmlTests(unittest.TestCase):
         def fake_request(url, params, retries=4):
             requested_sizes.append(params["resultRecordCount"])
             if params["resultRecordCount"] > 500:
-                raise water.urllib.error.URLError("response too large")
+                raise water.urllib.error.HTTPError(
+                    url, 500, "response too large", None, None
+                )
             return {"features": []}
 
         water._request_json = fake_request

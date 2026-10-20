@@ -138,12 +138,12 @@ def fetch_arcgis_features(
 
         try:
             payload = _request_json(f"{base_url}/{layer}/query", params)
-        except (OSError, urllib.error.URLError, json.JSONDecodeError, RuntimeError):
+        except urllib.error.HTTPError as exc:
             # Some statewide pages contain unusually complex polygons and the
             # service returns HTTP 500 for the combined response. Resume from
             # the same offset with a smaller page instead of restarting the
             # entire state job.
-            if page_size <= minimum_page_size:
+            if exc.code < 500 or page_size <= minimum_page_size:
                 raise
             page_size = max(minimum_page_size, page_size // 2)
             print(
