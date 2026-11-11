@@ -52,6 +52,30 @@ class WaterKmlTests(unittest.TestCase):
             water._request_json = original
         self.assertEqual(requested_sizes, [2000, 1000, 500])
 
+    def test_arcgis_page_size_shrinks_after_truncated_response(self):
+        requested_sizes = []
+        original = water._request_json
+
+        def fake_request(url, params, retries=4):
+            requested_sizes.append(params["resultRecordCount"])
+            if params["resultRecordCount"] > 500:
+                raise water.http.client.IncompleteRead(b"partial", 100)
+            return {"features": []}
+
+        water._request_json = fake_request
+        try:
+            self.assertEqual(
+                list(
+                    water.fetch_arcgis_features(
+                        "https://example.invalid", 1, "1=1", ["OBJECTID"]
+                    )
+                ),
+                [],
+            )
+        finally:
+            water._request_json = original
+        self.assertEqual(requested_sizes, [2000, 1000, 500])
+
     def test_quality_style_priority(self):
         self.assertEqual(water.quality_style({"isassessed": "Y"}), "quality-good")
         self.assertEqual(

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import http.client
 import json
 import sys
 import time
@@ -91,7 +92,13 @@ def _request_json(url: str, params: dict[str, Any], retries: int = 4) -> dict[st
             if "error" in payload:
                 raise RuntimeError(f"ArcGIS error: {payload['error']}")
             return payload
-        except (OSError, urllib.error.URLError, json.JSONDecodeError, RuntimeError):
+        except (
+            OSError,
+            urllib.error.URLError,
+            http.client.HTTPException,
+            json.JSONDecodeError,
+            RuntimeError,
+        ):
             if attempt == retries - 1:
                 raise
             time.sleep(2**attempt)
@@ -151,6 +158,18 @@ def fetch_arcgis_features(
             print(
                 f"  layer {layer}: retrying offset {offset:,} "
                 f"with page size {page_size:,}",
+                flush=True,
+            )
+            continue
+        except http.client.IncompleteRead:
+            # Large ArcGIS responses are occasionally truncated in transit.
+            # Smaller pages reduce response size and resume at the same offset.
+            if page_size <= minimum_page_size:
+                raise
+            page_size = max(minimum_page_size, page_size // 2)
+            print(
+                f"  layer {layer}: response truncated at offset {offset:,}; "
+                f"retrying with page size {page_size:,}",
                 flush=True,
             )
             continue
