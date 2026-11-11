@@ -3,7 +3,7 @@
 Quick utilities for turning the CoTrip camera feed export (`co_cotrip_cameras.json`) into ATAK overlays. The goal is simple: make the Colorado CoTrip camera feeds (see https://maps.cotrip.org/list/events) viewable directly in ATAK. Each Camera shows up as a camera icon on the ATAK map.
 
 ## What's here
-- `cotrip.py` — queries the CoTrip GraphQL APIs to pull all camera metadata, coordinates, and HLS URLs into `co_cotrip_cameras.json`.
+- `cotrip.py` — queries the current CoTrip 511 camera GeoJSON API, removes broken/non-HLS views, and writes camera metadata, coordinates, and HLS URLs to `co_cotrip_cameras.json`.
 - `convert_cot.py` — builds a CoT mission package (`co_cotrip_cameras_mp.zip`) with ready-to-play video entries in the provided CoT format.
 - `co_cotrip_cameras.json` — source camera listing (URI/title/lat/lon/HLS).
 - `outputs/` — generated files land here.
@@ -12,14 +12,15 @@ Quick utilities for turning the CoTrip camera feed export (`co_cotrip_cameras.js
 Requirements: Python 3 (stdlib only).
 
 From this folder:
-- Refresh camera data: `python3 cotrip.py` → updates `co_cotrip_cameras.json` with camera locations and HLS sources.
+- Refresh camera data: `python3 cotrip.py` → updates `co_cotrip_cameras.json` with current camera locations and working HLS sources from `https://api-511x-co.carsprogram.org/cameras/map-features`.
 - CoT package: `python3 convert_cot.py` → creates `outputs/co_cotrip_cameras_mp.zip` and per-camera `.cot` files (requires `co_cotrip_cameras.json`).
 
 If you have a newer JSON export, replace `co_cotrip_cameras.json` then rerun the scripts. Delete or ignore old files in `outputs/` if you want a clean drop.***
 
 Published data package
-- Use <https://openmanet.github.io/atakmaps/> as the authoritative download source. If `co_cotrip_cameras_mp.zip` is listed there, download it and import it into ATAK as a data package.
-- If the package is not listed, build it locally with `python3 convert_cot.py` as described above.
+- Use <https://openmanet.github.io/atakmaps/> as the authoritative download source.
+- Download <https://openmanet.github.io/atakmaps/cotrip/co_cotrip_cameras_mp.zip> and import it into ATAK as a data package.
+- The weekly CI/CD workflow refreshes the camera inventory before rebuilding this package.
 
 Note: the output is a CoT mission data package (ZIP with `.cot` files), not a KML/KMZ. Import the ZIP into ATAK as a data package to see the camera markers and launch HLS streams.
 

@@ -128,7 +128,7 @@ def main() -> int:
     data = json.loads(INPUT_JSON.read_text())
     cams = data.get("cameras") or []
 
-    cot_files = []
+    cot_entries: list[tuple[str, bytes]] = []
     manifest_uids = []
     now = datetime.now(timezone.utc)
     stale = now + timedelta(days=365)
@@ -145,21 +145,21 @@ def main() -> int:
         callsign = cam.get("title") or uid
         event = make_cot_event(uid, callsign, lon, lat, urls[0], now, stale)
         safe_uid = uid.replace("/", "_")
-        cot_path = OUTPUT_DIR / f"{safe_uid}.cot"
-        ET.ElementTree(event).write(cot_path, encoding="utf-8", xml_declaration=True)
-        cot_files.append(cot_path)
+        cot_xml = ET.tostring(event, encoding="utf-8", xml_declaration=True)
+        cot_entries.append((f"{safe_uid}.cot", cot_xml))
         manifest_uids.append(safe_uid)
 
     manifest = build_manifest(manifest_uids)
-    manifest_path = OUTPUT_DIR / "manifest.xml"
-    manifest.write(manifest_path, encoding="utf-8", xml_declaration=True)
+    manifest_xml = ET.tostring(
+        manifest.getroot(), encoding="utf-8", xml_declaration=True
+    )
 
     with zipfile.ZipFile(OUTPUT_ZIP, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        zf.write(manifest_path, arcname="MANIFEST/manifest.xml")
-        for cot_path in cot_files:
-            zf.write(cot_path, arcname=cot_path.name)
+        zf.writestr("MANIFEST/manifest.xml", manifest_xml)
+        for filename, cot_xml in cot_entries:
+            zf.writestr(filename, cot_xml)
 
-    print(f"Wrote mission package: {OUTPUT_ZIP} (events: {len(cot_files)})")
+    print(f"Wrote mission package: {OUTPUT_ZIP} (events: {len(cot_entries)})")
     return 0
 
 

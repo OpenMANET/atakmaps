@@ -6,6 +6,7 @@ on:
     paths:
       - .github/workflows/build-kmz.yml
       - projects/water/**
+      - projects/colorado-traffic-cameras/**
       - state_bboxes.py
   schedule:
     - cron: "0 9 * * 1" # Mondays at 09:00 UTC
@@ -221,6 +222,11 @@ jobs:
         if: steps.cache-site.outputs.cache-hit != 'true'
         run: python3 projects/colorado-cotrex/main.py
 
+      - name: Refresh Colorado CoTrip cameras
+        run: |
+          python3 projects/colorado-traffic-cameras/cotrip.py
+          python3 projects/colorado-traffic-cameras/convert_cot.py
+
       - name: Collect site artifacts
         if: steps.cache-site.outputs.cache-hit != 'true'
         run: |
@@ -237,6 +243,11 @@ jobs:
           pattern: water-*
           path: site/water
           merge-multiple: true
+
+      - name: Collect Colorado CoTrip camera package
+        run: |
+          mkdir -p site/cotrip
+          cp projects/colorado-traffic-cameras/outputs/co_cotrip_cameras_mp.zip site/cotrip/
 
       - name: Generate Pages index
         run: |
